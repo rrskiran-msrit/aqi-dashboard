@@ -1,0 +1,34 @@
+city,station,station_folder,data_file,metrics_file,config_file,models_folder
+Bengaluru,BTM Layout,bengaluru/btm_layout,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,BWSSB Kadabesanahalli,bengaluru/bwssb_kadabesanahalli,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Bapuji Nagar,bengaluru/bapuji_nagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,City Railway Station,bengaluru/city_railway_station,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Hebbal,bengaluru/hebbal,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Hombegowda Nagar,bengaluru/hombegowda_nagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Jayanagar 5th Block,bengaluru/jayanagar_5th_block,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Kasturi Nagar,bengaluru/kasturi_nagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Peenya,bengaluru/peenya,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,RVCE-Mailasandra,bengaluru/rvce_mailasandra,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Sanegurava Halli,bengaluru/sanegurava_halli,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Shivapura_Peenya,bengaluru/shivapura_peenya,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Bengaluru,Silk Board,bengaluru/silk_board,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Bollaram Industrial Area,hyderabad/bollaram_industrial_area,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Central University,hyderabad/central_university,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,ECIL Kapra,hyderabad/ecil_kapra,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,ICRISAT Patancheru,hyderabad/icrisat_patancheru,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,IDA Pashamylaram,hyderabad/ida_pashamylaram,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,IITH Kandi,hyderabad/iith_kandi,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Kokapet,hyderabad/kokapet,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Kompally Municipal Office,hyderabad/kompally_municipal_office,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Nacharam_TSIIC IALA,hyderabad/nacharam_tsiic_iala,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,New Malakpet,hyderabad/new_malakpet,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Ramachandrapuram,hyderabad/ramachandrapuram,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Sanathnagar,hyderabad/sanathnagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Somajiguda,hyderabad/somajiguda,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Hyderabad,Zoo Park,hyderabad/zoo_park,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Jaipur,Adarsh Nagar,jaipur/adarsh_nagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Jaipur,Mansarovar Sector-12,jaipur/mansarovar_sector_12,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Jaipur,Police Commissionerate,jaipur/police_commissionerate,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Jaipur,RIICO Sitapura,jaipur/riico_sitapura,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Jaipur,Sector-2 Murlipura,jaipur/sector_2_murlipura,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Jaipur,Shastri Nagar,jaipur/shastri_nagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
