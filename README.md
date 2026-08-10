@@ -1,6 +1,6 @@
-# AirScope: Multi-City Air Quality Intelligence Dashboard
+# Multi-City Air Quality Intelligence Dashboard
 
-AirScope is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
+Indian Cities AQI Dashboard is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
 
 The project is intended to make detailed air-quality analysis easier to explore for researchers, students, policymakers, environmental professionals, and members of the public. It complements the underlying scientific workflow by converting its processed results into an accessible web application.
 
@@ -129,7 +129,7 @@ The web application uses compact Parquet files for hourly data and CSV/JSON file
 
 ## Fair-comparison safeguards
 
-Air-quality comparisons can be misleading when stations have different observation periods or missing-data rates. AirScope therefore applies the following safeguards:
+Air-quality comparisons can be misleading when stations have different observation periods or missing-data rates. The AQI Dashboard therefore applies the following safeguards:
 
 - map values are matched to one shared date and hour;
 - users choose an acceptable nearest-observation tolerance;
@@ -261,7 +261,7 @@ For manuscript publication, consider archiving a release through Zenodo and citi
 Replace the placeholders below after the manuscript, repository, and archival release are finalized:
 
 ```text
-[Author(s)]. (Year). AirScope: Multi-City Air Quality Intelligence Dashboard
+[Author(s)]. (Year). Multi-City Air Quality Intelligence Dashboard
 [Software]. Version X.Y.Z. GitHub: [repository URL].
 Live application: [Streamlit application URL].
 Archived version: [Zenodo DOI].
