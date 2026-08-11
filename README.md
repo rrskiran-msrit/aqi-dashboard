@@ -1,6 +1,6 @@
-# Multi-City Air Quality Intelligence Dashboard
+# AirScope: Multi-City Air Quality Intelligence Dashboard
 
-Indian Cities AQI Dashboard is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
+AirScope is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
 
 The project is intended to make detailed air-quality analysis easier to explore for researchers, students, policymakers, environmental professionals, and members of the public. It complements the underlying scientific workflow by converting its processed results into an accessible web application.
 
@@ -129,7 +129,7 @@ The web application uses compact Parquet files for hourly data and CSV/JSON file
 
 ## Fair-comparison safeguards
 
-Air-quality comparisons can be misleading when stations have different observation periods or missing-data rates. The AQI Dashboard therefore applies the following safeguards:
+Air-quality comparisons can be misleading when stations have different observation periods or missing-data rates. AirScope therefore applies the following safeguards:
 
 - map values are matched to one shared date and hour;
 - users choose an acceptable nearest-observation tolerance;
@@ -261,7 +261,7 @@ For manuscript publication, consider archiving a release through Zenodo and citi
 Replace the placeholders below after the manuscript, repository, and archival release are finalized:
 
 ```text
-[Author(s)]. (Year). Multi-City Air Quality Intelligence Dashboard
+[Author(s)]. (Year). AirScope: Multi-City Air Quality Intelligence Dashboard
 [Software]. Version X.Y.Z. GitHub: [repository URL].
 Live application: [Streamlit application URL].
 Archived version: [Zenodo DOI].
@@ -273,9 +273,9 @@ This dashboard is the presentation layer for a broader air-quality processing an
 
 ## Licence
 
-MIT License
+No licence has yet been specified in this repository. Before public reuse or manuscript publication, add an appropriate software licence and confirm that redistribution of the processed air-quality data is permitted by the original data provider's terms.
 
 ## Contact
 
-Email to rrskiran@msrit.edu for more information. 
+For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email here.
 
