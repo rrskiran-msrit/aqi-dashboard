@@ -270,6 +270,206 @@ def hex_to_rgba(value: str) -> list[int]:
     return [int(value[i:i + 2], 16) for i in (0, 2, 4)] + [210]
 
 
+REFERENCES = [
+    {"key": "Li2016", "citation": "Li et al. (2016)", "title": "A Visualization Approach to Air Pollution Data Exploration—A Case Study of Air Quality Index (PM2.5) in Beijing, China", "journal": "Atmosphere, 7(3), 35", "url": "https://www.mdpi.com/2073-4433/7/3/35", "supports": "Circular heatmaps, calendar views, hourly and monthly AQI patterns"},
+    {"key": "Liu2016", "citation": "Liu et al. (2016)", "title": "Temporal Patterns in Fine Particulate Matter Time Series in Beijing: A Calendar View", "journal": "Scientific Reports, 6, 32221", "url": "https://www.nature.com/articles/srep32221", "supports": "Calendar visualization and clustering of daily pollution profiles"},
+    {"key": "Qu2017", "citation": "Qu et al. (2017)", "title": "A Visual Analytics Approach for Station-Based Air Quality Data", "journal": "Sensors, 17(1), 30", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5298603/", "supports": "Linked map, calendar and trend views; station comparison"},
+    {"key": "Lu2017", "citation": "Lu et al. (2017)", "title": "An Interactive Web Mapping Visualization of Urban Air Quality Monitoring Data of China", "journal": "Atmosphere, 8(8), 148", "url": "https://www.mdpi.com/2073-4433/8/8/148", "supports": "Multi-granularity temporal visualization and interactive maps"},
+    {"key": "Wright2020", "citation": "Wright and Wernecke (2020)", "title": "Using Microsoft Power BI to Visualise Rustenburg Local Municipality's Air Quality Data", "journal": "Clean Air Journal, 30(1), 1–5", "url": "https://scielo.org.za/scielo.php?pid=S2410-972X2020000100007&script=sci_abstract", "supports": "Compliance, exceedance frequency and site-level data availability"},
+    {"key": "Liu2021", "citation": "Liu et al. (2021)", "title": "AQEyes: Visual Analytics for Anomaly Detection and Examination of Air Quality Data", "journal": "arXiv:2103.12910", "url": "https://arxiv.org/abs/2103.12910", "supports": "Multiscale anomaly detection and event examination"},
+    {"key": "Lee2022", "citation": "Lee et al. (2022)", "title": "An Online Interactive Dashboard to Explore Personal Exposure to Air Pollution", "journal": "Findings, 2022", "url": "https://findingspress.org/article/49875-an-online-interactive-dashboard-to-explore-personal-exposure-to-air-pollution.pdf", "supports": "Linked maps/time series, temporal filters and guideline comparisons"},
+    {"key": "Lissens2022", "citation": "Carro et al. (2022)", "title": "Exploring Actionable Visualizations for Environmental Data: Air Quality Assessment of Two Belgian Locations", "journal": "Environmental Modelling & Software, 147, 105230", "url": "https://doi.org/10.1016/j.envsoft.2021.105230", "supports": "AQI health categories superimposed on concentration trends"},
+    {"key": "HD2023", "citation": "Liu et al. (2023)", "title": "High-dimensional Spatiotemporal Visual Analysis of the Air Quality in China", "journal": "Scientific Reports, 13, 5462", "url": "https://www.nature.com/articles/s41598-023-31645-1", "supports": "Ridgeline distributions, maps and high-dimensional comparisons"},
+    {"key": "Evolution2023", "citation": "Du et al. (2023)", "title": "Spatiotemporal Evolution Characteristics and Prediction Analysis of Urban Air Quality in China", "journal": "Scientific Reports, 13", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10235078/", "supports": "Seasonal statistics, pollutant heatmaps and trend decomposition"},
+]
+
+
+def source_note(figure: str, citations: list[str]) -> None:
+    matches = [r for r in REFERENCES if r["key"] in citations]
+    links = "; ".join(f'<a href="{r["url"]}" target="_blank">{r["citation"]}</a>' for r in matches)
+    st.markdown(
+        f'<div class="data-note"><b>{figure}</b><br>Visualization design informed by {links}. '
+        'The figure is computed from the present project dataset and is not reproduced from the cited publication.</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_about_page() -> None:
+    st.markdown('<div class="hero"><div class="eyebrow">Academic project · 2026</div><h1>About this dashboard</h1><p>Project identity, institutional submission details and acknowledgements.</p></div>', unsafe_allow_html=True)
+    st.write("")
+    st.markdown("""
+<div style="background:white;border:1px solid #e1ebe7;border-radius:22px;padding:34px;box-shadow:0 8px 28px rgba(24,62,50,.06);text-align:center">
+<div style="font-size:.85rem;color:#16815d;font-weight:700;letter-spacing:.08em">PROJECT SUBMISSION</div>
+<h2 style="line-height:1.35;color:#163d31">DEVELOPMENT OF PHYSICS-GUIDED AI PLATFORM FOR LOCAL AIR QUALITY INDEX PREDICTION AND MONITORING IN INDIAN CITIES</h2>
+<p><em>A thesis submitted to the Centre for Distance and Online Education, Andhra University, in partial fulfillment for the award of</em></p>
+<h3>MASTER OF COMPUTER APPLICATIONS</h3>
+<p><b>By</b><br><b>Rama Siva Kiran Reddy</b><br>Reg. No: A24CA0239</p>
+<p><b>Under the Guidance of</b><br><b>Dr. Manish Kumar</b><br>Associate Professor<br>School of Computer Science and Engineering<br>R V University, Bangalore – 560059</p>
+<hr style="border:none;border-top:1px solid #e1ebe7;margin:28px 0">
+<h3>CENTRE FOR DISTANCE AND ONLINE EDUCATION<br>ANDHRA UNIVERSITY<br>VISAKHAPATNAM</h3>
+<h3>2026</h3>
+</div>
+""", unsafe_allow_html=True)
+    st.write("")
+    section("Gratitude", "Acknowledgement")
+    st.markdown("""
+With pride, immense pleasure and a profound sense of gratitude, I take this golden opportunity to express my heartiest and sincere thanks to my research guide, **Dr. Manish Kumar**, Associate Professor, School of Computer Science and Engineering, R V University, Bangalore, for his valuable guidance and encouragement throughout the progress of my thesis work.
+
+I thank **Prof. G. M. Madhu**, Head of the Department, Department of Chemical Engineering, M S Ramaiah Institute of Technology, Bengaluru, for providing the laboratory facilities for my work.
+
+I express my deep sense of gratitude and sincere regards to the team at the **Centre for Distance and Online Education, Andhra University, Visakhapatnam**, for their excellent stewardship towards the successful completion of my thesis work.
+
+My sincere thanks to the **Central Pollution Control Board, New Delhi**, for providing the air-quality data of various Indian cities for the application of Physics-Guided Artificial Intelligence techniques.
+
+I affectionately acknowledge the help and encouragement received from all my friends. Words have no power to express my thanks to my mother and my wife, who have taken every pain to support my studies.
+
+Finally, I thank one and all who helped me in accomplishing my objective.
+
+**Rama Siva Kiran Reddy**
+""")
+    st.info("This dashboard was prepared as part of the above MCA project submission. It presents historical project data and model results; it is not an official live CPCB service.")
+
+
+def render_references_page() -> None:
+    st.markdown('<div class="hero"><div class="eyebrow">Scholarly foundation</div><h1>References and visualization sources</h1><p>Published literature informing the analytical and visual presentation methods used in this dashboard.</p></div>', unsafe_allow_html=True)
+    st.write("")
+    st.markdown("The visualizations use **this project’s data**. References acknowledge published methods and presentation designs; figures have not been copied from the articles.")
+    query = st.text_input("Search references", placeholder="Try: calendar, stations, compliance, anomaly…")
+    refs = REFERENCES
+    if query:
+        needle = query.lower()
+        refs = [r for r in refs if needle in " ".join(r.values()).lower()]
+    for number, ref in enumerate(refs, 1):
+        st.markdown(
+            f'**{number}. {ref["citation"]}.** {ref["title"]}. *{ref["journal"]}*.  '
+            f'[Open article or PDF ↗]({ref["url"]})  \n'
+            f'<span style="color:#65756f;font-size:.88rem"><b>Supports:</b> {ref["supports"]}</span>',
+            unsafe_allow_html=True,
+        )
+    bibliography = "\n".join(f'{i}. {r["citation"]}. {r["title"]}. {r["journal"]}. {r["url"]}' for i, r in enumerate(REFERENCES, 1))
+    st.download_button("Download reference list", bibliography.encode("utf-8"), "air_quality_dashboard_references.txt", "text/plain")
+
+
+@st.cache_data(show_spinner=False, max_entries=3)
+def load_research_sample(records: tuple[tuple[str, str], ...], start_iso: str, end_iso: str) -> pd.DataFrame:
+    """Load only analysis columns and aggregate early to protect Community Cloud memory."""
+    start_ts, end_ts = pd.Timestamp(start_iso), pd.Timestamp(end_iso)
+    frames = []
+    wanted = ["timestamp", "aqi", *POLLUTANTS.keys()]
+    for station_name, folder_name in records:
+        path = DATA_DIR / folder_name / "station_hourly.parquet"
+        try:
+            import pyarrow.parquet as pq
+            available = set(pq.read_schema(path).names)
+        except Exception:
+            available = set(pd.read_parquet(path, columns=[]).columns)
+        cols = [c for c in wanted if c in available]
+        q = pd.read_parquet(path, columns=cols)
+        q["timestamp"] = pd.to_datetime(q["timestamp"], errors="coerce")
+        q = q[(q["timestamp"] >= start_ts) & (q["timestamp"] < end_ts)]
+        q["station"] = station_name
+        frames.append(q)
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def render_research_visuals(city_name: str, city_rows: pd.DataFrame) -> None:
+    st.markdown(f'<div class="hero"><div class="eyebrow">Research visual atlas · {city_name}</div><h1>Manuscript-style air-quality analytics</h1><p>Compact, high-information figures designed for station comparison, temporal interpretation and reporting.</p></div>', unsafe_allow_html=True)
+    all_stations = sorted(city_rows["station"].unique())
+    default_stations = all_stations[:min(8, len(all_stations))]
+    chosen_stations = st.multiselect("Stations", all_stations, default=default_stations, max_selections=12, help="Limited to 12 stations to keep the Community Cloud app responsive.")
+    if not chosen_stations:
+        st.warning("Select at least one station.")
+        return
+    selected_rows = city_rows[city_rows["station"].isin(chosen_stations)]
+    records = tuple((str(r.station), str(r.station_folder).replace("\\", "/")) for r in selected_rows.itertuples())
+    min_ts, max_ts = city_date_bounds(tuple(x[1] for x in records))
+    suggested_start = max(min_ts.normalize(), max_ts.normalize() - pd.Timedelta(days=365 * 3))
+    dates = st.date_input("Analysis period", (suggested_start.date(), max_ts.date()), min_value=min_ts.date(), max_value=max_ts.date(), key="research_dates")
+    if not isinstance(dates, tuple) or len(dates) != 2:
+        st.info("Choose a start and end date.")
+        return
+    start_ts, end_ts = pd.Timestamp(dates[0]), pd.Timestamp(dates[1]) + pd.Timedelta(days=1)
+    with st.spinner("Preparing research visualizations…"):
+        raw = load_research_sample(records, start_ts.isoformat(), end_ts.isoformat())
+    if raw.empty:
+        st.warning("No observations are available for this selection.")
+        return
+    available = [p for p in POLLUTANTS if p in raw and raw[p].notna().any()]
+    dot_tab, calendar_tab, distribution_tab, association_tab = st.tabs(["Dot and bubble tables", "Temporal heatmaps", "Distributions", "Associations"])
+    with dot_tab:
+        section("Figure 1", "Station × pollutant bubble table")
+        means = raw.groupby("station")[available].mean().reset_index().melt("station", var_name="pollutant", value_name="mean")
+        means["label"] = means["pollutant"].map(POLLUTANTS)
+        means["relative"] = means.groupby("pollutant")["mean"].rank(pct=True).mul(100)
+        bubble = alt.Chart(means.dropna()).mark_circle(stroke="white", strokeWidth=1.5).encode(
+            x=alt.X("label:N", title=None), y=alt.Y("station:N", title=None),
+            size=alt.Size("relative:Q", scale=alt.Scale(range=[80, 1100]), title="Within-pollutant percentile"),
+            color=alt.Color("relative:Q", scale=alt.Scale(scheme="yelloworangered"), title="Relative level"),
+            tooltip=["station:N", alt.Tooltip("label:N", title="Pollutant"), alt.Tooltip("mean:Q", format=".2f", title="Mean"), alt.Tooltip("relative:Q", format=".0f", title="Percentile")],
+        ).properties(height=max(330, len(chosen_stations) * 34))
+        st.altair_chart(bubble, use_container_width=True)
+        st.caption("Dot size and colour compare stations within each pollutant. Raw concentrations of different pollutants are not treated as directly comparable.")
+        source_note("Figure 1. Station–pollutant bubble table", ["Qu2017", "HD2023"])
+
+        section("Figure 2", "Ranked station dot plot")
+        station_stats = raw.groupby("station")["aqi"].agg(mean="mean", median="median", q1=lambda x: x.quantile(.25), q3=lambda x: x.quantile(.75), observations="count").reset_index().dropna(subset=["mean"])
+        base = alt.Chart(station_stats).encode(y=alt.Y("station:N", sort="-x", title=None))
+        intervals = base.mark_rule(strokeWidth=3, color="#9ebbb0").encode(x=alt.X("q1:Q", title="AQI"), x2="q3:Q")
+        dots = base.mark_circle(size=150, color="#147a59").encode(x="mean:Q", tooltip=["station:N", alt.Tooltip("mean:Q", format=".1f"), alt.Tooltip("median:Q", format=".1f"), "observations:Q"])
+        st.altair_chart((intervals + dots).properties(height=max(320, len(chosen_stations) * 34)), use_container_width=True)
+        source_note("Figure 2. Mean AQI with interquartile range", ["Wright2020", "Qu2017"])
+
+    with calendar_tab:
+        pollutant = st.selectbox("Temporal variable", ["aqi", *available], format_func=lambda x: "AQI" if x == "aqi" else POLLUTANTS[x], key="temporal_variable")
+        daily = raw.assign(date=raw["timestamp"].dt.floor("D")).groupby("date", as_index=False)[pollutant].mean().dropna()
+        daily["weekday"] = daily["date"].dt.weekday
+        daily["week"] = daily["date"].dt.strftime("%U").astype(int)
+        daily["year"] = daily["date"].dt.year
+        section("Figure 3", "Calendar heatmap")
+        calendar = alt.Chart(daily).mark_rect(cornerRadius=2).encode(
+            x=alt.X("week:O", title="Week of year", axis=alt.Axis(labels=False, ticks=False)),
+            y=alt.Y("weekday:O", title=None, sort=[0,1,2,3,4,5,6], axis=alt.Axis(labelExpr="['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][datum.value]")),
+            row=alt.Row("year:N", title=None), color=alt.Color(f"{pollutant}:Q", scale=alt.Scale(scheme="yelloworangered")),
+            tooltip=[alt.Tooltip("date:T", title="Date"), alt.Tooltip(f"{pollutant}:Q", format=".1f")],
+        ).properties(height=95)
+        st.altair_chart(calendar, use_container_width=True)
+        source_note("Figure 3. Daily calendar heatmap", ["Li2016", "Liu2016", "Qu2017"])
+
+        section("Figure 4", "Hour × month heatmap")
+        hm = raw.assign(hour=raw["timestamp"].dt.hour, month=raw["timestamp"].dt.month).groupby(["month", "hour"], as_index=False)[pollutant].mean()
+        heat = alt.Chart(hm).mark_rect().encode(x=alt.X("hour:O", title="Hour"), y=alt.Y("month:O", title="Month"), color=alt.Color(f"{pollutant}:Q", scale=alt.Scale(scheme="yelloworangered")), tooltip=["month:O", "hour:O", alt.Tooltip(f"{pollutant}:Q", format=".1f")]).properties(height=330)
+        st.altair_chart(heat, use_container_width=True)
+        source_note("Figure 4. Diurnal and monthly pattern matrix", ["Li2016", "Evolution2023"])
+
+    with distribution_tab:
+        variable = st.selectbox("Distribution variable", ["aqi", *available], format_func=lambda x: "AQI" if x == "aqi" else POLLUTANTS[x], key="distribution_variable")
+        sample = raw[["station", "timestamp", variable]].dropna()
+        sample = downsample(sample, 12000)
+        sample["season"] = sample["timestamp"].dt.month.map({12:"Winter",1:"Winter",2:"Winter",3:"Pre-monsoon",4:"Pre-monsoon",5:"Pre-monsoon",6:"Monsoon",7:"Monsoon",8:"Monsoon",9:"Monsoon",10:"Post-monsoon",11:"Post-monsoon"})
+        section("Figure 5", "Seasonal box-and-point distribution")
+        box = alt.Chart(sample).mark_boxplot(size=34, extent="min-max").encode(x=alt.X("season:N", sort=["Winter","Pre-monsoon","Monsoon","Post-monsoon"], title=None), y=alt.Y(f"{variable}:Q", title="AQI" if variable == "aqi" else POLLUTANTS[variable]), color=alt.Color("season:N", legend=None, scale=alt.Scale(range=["#5871a8","#e4a43b","#32a879","#b76450"])), tooltip=["season:N"])
+        st.altair_chart(box.properties(height=390), use_container_width=True)
+        source_note("Figure 5. Seasonal distribution", ["Evolution2023", "HD2023"])
+
+    with association_tab:
+        numeric = ["aqi", *available]
+        corr = raw[numeric].corr(method="spearman").stack().rename("correlation").reset_index()
+        corr.columns = ["variable_1", "variable_2", "correlation"]
+        labels = {"aqi":"AQI", **POLLUTANTS}
+        corr["variable_1"] = corr["variable_1"].map(labels)
+        corr["variable_2"] = corr["variable_2"].map(labels)
+        corr["strength"] = corr["correlation"].abs()
+        section("Figure 6", "Correlation bubble matrix")
+        matrix = alt.Chart(corr).mark_circle(stroke="#ffffff", strokeWidth=1).encode(
+            x=alt.X("variable_1:N", title=None), y=alt.Y("variable_2:N", title=None),
+            size=alt.Size("strength:Q", scale=alt.Scale(range=[20, 1100]), legend=None),
+            color=alt.Color("correlation:Q", scale=alt.Scale(domain=[-1,0,1], range=["#315a9a","#f3f3ef","#b83745"]), title="Spearman ρ"),
+            tooltip=[alt.Tooltip("variable_1:N", title="Variable 1"), alt.Tooltip("variable_2:N", title="Variable 2"), alt.Tooltip("correlation:Q", format=".3f")],
+        ).properties(height=440)
+        st.altair_chart(matrix, use_container_width=True)
+        source_note("Figure 6. Spearman correlation dot matrix", ["HD2023", "Evolution2023"])
+
+
 def render_city_overview(city_name: str, city_rows: pd.DataFrame) -> None:
     records = tuple((str(r.station), str(r.station_folder).replace("\\", "/")) for r in city_rows.itertuples())
     min_ts, max_ts = city_date_bounds(tuple(x[1] for x in records))
@@ -475,18 +675,34 @@ def render_city_overview(city_name: str, city_rows: pd.DataFrame) -> None:
 
 
 index = load_index()
-st.sidebar.markdown("## 🌿 AirScope")
-st.sidebar.caption("Community air-quality intelligence")
-preferred_city_order = ["Hyderabad", "Bengaluru", "Jaipur"]
+st.sidebar.markdown("## AirScope")
+st.sidebar.caption("Physics-guided air-quality intelligence")
+app_page = st.sidebar.radio(
+    "NAVIGATION",
+    ["City dashboard", "Station explorer", "Research visuals", "References", "About & acknowledgement"],
+    index=0,
+)
+if app_page == "References":
+    render_references_page()
+    st.stop()
+if app_page == "About & acknowledgement":
+    render_about_page()
+    st.stop()
+
+preferred_city_order = ["Delhi", "Mumbai", "Hyderabad", "Bengaluru", "Jaipur"]
 available_cities = list(index["city"].dropna().unique())
 ordered_cities = [c for c in preferred_city_order if c in available_cities] + sorted(c for c in available_cities if c not in preferred_city_order)
 city = st.sidebar.selectbox("CITY", ordered_cities)
 city_index = index[index["city"] == city]
-analysis_level = st.sidebar.radio("VIEW", ["City overview", "Station explorer"], horizontal=True)
-if analysis_level == "City overview":
+if app_page == "Research visuals":
+    render_research_visuals(city, city_index)
+    st.markdown("---")
+    st.caption("Research visualizations are calculated from project data. See References for the published design sources.")
+    st.stop()
+if app_page == "City dashboard":
     render_city_overview(city, city_index)
     st.markdown("---")
-    st.caption("AirScope · City comparisons use a common period, shared snapshot time and explicit data-coverage safeguards.")
+    st.caption("AirScope · City comparisons use a common period, shared snapshot time and explicit data-coverage safeguards. See References for visualization sources.")
     st.stop()
 station = st.sidebar.selectbox("MONITORING STATION", sorted(city_index["station"].unique()))
 row = city_index[city_index["station"] == station].iloc[0]
@@ -669,4 +885,4 @@ with quality_tab:
     st.download_button("Download selected data as CSV", filtered[export_cols].to_csv(index=False).encode("utf-8"), f"{city}_{station}_selected_data.csv".replace(" ", "_"), "text/csv")
 
 st.markdown("---")
-st.caption("AirScope · Data-only community dashboard · Historical CPCB workbench results · Health guidance is informational, not medical advice.")
+st.caption("AirScope · Prepared for the MCA project submission of Rama Siva Kiran Reddy (A24CA0239), Centre for Distance and Online Education, Andhra University · Historical CPCB workbench results · Health guidance is informational, not medical advice.")

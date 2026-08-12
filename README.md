@@ -24,12 +24,22 @@ The dashboard is being developed to:
 
 | City | Monitoring stations |
 |---|---:|
+| Delhi | 38 |
+| Mumbai | 19 |
 | Hyderabad | 14 |
 | Bengaluru | 13 |
 | Jaipur | 6 |
-| **Total** | **33** |
+| **Total** | **90** |
 
-The city selector is deliberately ordered as Hyderabad, Bengaluru, and Jaipur. Additional cities are discovered from the dashboard's compact station registry after import.
+The city selector is deliberately ordered as Delhi, Mumbai, Hyderabad, Bengaluru, and Jaipur. Additional cities are discovered from the dashboard's compact station registry after import.
+
+## Application pages
+
+- **City dashboard:** maps, rankings, temporal patterns, pollution burden, city-wide model evidence and reliability.
+- **Station explorer:** detailed AQI, pollutant, model and data-quality tabs for an individual station.
+- **Research visuals:** manuscript-style station–pollutant bubble tables, ranked dot plots, calendar/temporal heatmaps, seasonal distributions and correlation-dot matrices.
+- **References:** searchable author–year bibliography with direct article/PDF links.
+- **About & acknowledgement:** formal MCA project-submission details and acknowledgement.
 
 ## Dashboard capabilities
 
@@ -166,6 +176,8 @@ air-quality-piiml-dashboard/
     ├── bengaluru/
     │   └── <station>/
     ├── jaipur/
+    ├── delhi/
+    ├── mumbai/
     │   └── <station>/
     └── city_summary/
 ```
@@ -278,4 +290,3 @@ No licence has yet been specified in this repository. Before public reuse or man
 ## Contact
 
 For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email here.
-
