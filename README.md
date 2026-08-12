@@ -1,6 +1,6 @@
-# AirScope: Multi-City Air Quality Intelligence Dashboard
+Multi-City Air Quality Intelligence Dashboard
 
-AirScope is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
+Multi-City Air Quality Intelligence Dashboard is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
 
 The project is intended to make detailed air-quality analysis easier to explore for researchers, students, policymakers, environmental professionals, and members of the public. It complements the underlying scientific workflow by converting its processed results into an accessible web application.
 
@@ -244,49 +244,10 @@ The importer:
 
 After importing a city, restart Streamlit or clear its data cache.
 
-## Deploying on Streamlit Community Cloud
-
-1. Create a public GitHub repository.
-2. Upload the repository contents, but do not upload `.venv`, `__pycache__`, logs, result ZIP files, or original training folders.
-3. Sign in at [Streamlit Community Cloud](https://share.streamlit.io/).
-4. Select the GitHub repository and branch.
-5. Set the entrypoint to `streamlit_app.py`.
-6. Select a supported Python version, preferably Python 3.12 or 3.13.
-7. Choose an available `*.streamlit.app` subdomain.
-8. Deploy and set the application to public access.
-9. Test the public URL in a private/incognito browser before sharing it.
-
-## Reproducibility and responsible use
-
-- Dashboard results depend on the supplied processed station bundles.
-- Missing values remain missing and are not presented as observations.
-- Station coverage varies by city, station, variable, and period.
-- Model metrics should only be compared under compatible validation settings.
-- Correlation does not establish a pollution source or causal relationship.
-- The application should not be used for emergency response or individual medical decisions.
-- A public dashboard URL should be accompanied by a versioned source-code/data archive for scholarly publication.
-
-For manuscript publication, consider archiving a release through Zenodo and citing both the live Streamlit application and the archived DOI.
-
-## Suggested citation
-
-Replace the placeholders below after the manuscript, repository, and archival release are finalized:
-
-```text
-[Author(s)]. (Year). AirScope: Multi-City Air Quality Intelligence Dashboard
-[Software]. Version X.Y.Z. GitHub: [repository URL].
-Live application: [Streamlit application URL].
-Archived version: [Zenodo DOI].
-```
-
-## Research acknowledgement
-
-This dashboard is the presentation layer for a broader air-quality processing and physics-informed machine-learning workflow. The scientific manuscript should be consulted for complete information about data provenance, preprocessing, feature construction, model architecture, training, validation, uncertainty, and interpretation.
-
 ## Licence
 
-No licence has yet been specified in this repository. Before public reuse or manuscript publication, add an appropriate software licence and confirm that redistribution of the processed air-quality data is permitted by the original data provider's terms.
+MIT License
 
 ## Contact
 
-For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email here.
+Email: rrskiran@msrit.edu
