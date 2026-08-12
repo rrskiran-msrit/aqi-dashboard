@@ -152,6 +152,62 @@ def downsample(df: pd.DataFrame, limit: int = 6000) -> pd.DataFrame:
     return df.iloc[np.linspace(0, len(df) - 1, limit).astype(int)]
 
 
+def descriptive_statistics(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    rows = []
+    for column in columns:
+        values = pd.to_numeric(df[column], errors="coerce").dropna()
+        if values.empty:
+            continue
+        sem = values.std(ddof=1) / np.sqrt(len(values)) if len(values) > 1 else np.nan
+        rows.append({
+            "Variable": "AQI" if column == "aqi" else POLLUTANTS.get(column, column.replace("_", " ").title()),
+            "N": len(values), "Coverage (%)": 100 * len(values) / max(len(df), 1),
+            "Mean": values.mean(), "95% CI low": values.mean() - 1.96 * sem,
+            "95% CI high": values.mean() + 1.96 * sem, "Median": values.median(),
+            "SD": values.std(), "Min": values.min(), "P05": values.quantile(.05),
+            "Q1": values.quantile(.25), "Q3": values.quantile(.75), "P95": values.quantile(.95),
+            "Max": values.max(), "IQR": values.quantile(.75) - values.quantile(.25),
+            "Skewness": values.skew(), "Kurtosis": values.kurt(),
+            "Missing": int(df[column].isna().sum()), "Unique": values.nunique(),
+        })
+    return pd.DataFrame(rows)
+
+
+def pca_scores(df: pd.DataFrame, columns: list[str], limit: int = 6000) -> tuple[pd.DataFrame, pd.DataFrame, list[float]]:
+    complete = df[["timestamp", *columns]].dropna()
+    complete = downsample(complete, limit)
+    if len(complete) < 3 or len(columns) < 2:
+        return pd.DataFrame(), pd.DataFrame(), []
+    matrix = complete[columns].astype(float)
+    std = matrix.std(ddof=0).replace(0, np.nan)
+    z = ((matrix - matrix.mean()) / std).dropna(axis=1)
+    used = list(z.columns)
+    if len(used) < 2:
+        return pd.DataFrame(), pd.DataFrame(), []
+    u, singular, vt = np.linalg.svd(z.to_numpy(), full_matrices=False)
+    variance = singular ** 2
+    ratios = (variance / variance.sum()).tolist()
+    scores = complete.loc[z.index, ["timestamp"]].copy()
+    scores["PC1"] = u[:, 0] * singular[0]
+    scores["PC2"] = u[:, 1] * singular[1]
+    scores["season"] = scores["timestamp"].dt.month.map({12:"Winter",1:"Winter",2:"Winter",3:"Pre-monsoon",4:"Pre-monsoon",5:"Pre-monsoon",6:"Monsoon",7:"Monsoon",8:"Monsoon",9:"Monsoon",10:"Post-monsoon",11:"Post-monsoon"})
+    loadings = pd.DataFrame({"Variable": ["AQI" if c == "aqi" else POLLUTANTS.get(c, c) for c in used], "PC1": vt[0], "PC2": vt[1]})
+    return scores, loadings, ratios
+
+
+def episode_table(df: pd.DataFrame) -> pd.DataFrame:
+    daily = df.set_index("timestamp")["aqi"].resample("D").mean().dropna().reset_index()
+    if daily.empty:
+        return daily
+    daily["polluted"] = daily["aqi"] > 200
+    daily["group"] = (daily["polluted"] != daily["polluted"].shift()).cumsum()
+    episodes = daily[daily["polluted"]].groupby("group").agg(
+        Start=("timestamp", "min"), End=("timestamp", "max"), Duration_days=("timestamp", "size"),
+        Mean_AQI=("aqi", "mean"), Peak_AQI=("aqi", "max"),
+    ).reset_index(drop=True)
+    return episodes.sort_values(["Duration_days", "Peak_AQI"], ascending=False)
+
+
 @st.cache_data(show_spinner=False, max_entries=4)
 def city_date_bounds(folders: tuple[str, ...]) -> tuple[pd.Timestamp, pd.Timestamp]:
     bounds = []
@@ -760,8 +816,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-overview_tab, trends_tab, pollutants_tab, models_tab, quality_tab = st.tabs(
-    ["Overview", "AQI trends", "Pollutants", "Model lab", "Data quality"]
+overview_tab, trends_tab, pollutants_tab, models_tab, quality_tab, stats_tab, patterns_tab, advanced_tab = st.tabs(
+    ["Overview", "AQI trends", "Pollutants", "Model lab", "Data quality", "Statistical atlas", "Pattern atlas", "Advanced analytics"]
 )
 
 with overview_tab:
@@ -857,16 +913,49 @@ with models_tab:
         ).properties(height=320)
         st.altair_chart(metric_chart, use_container_width=True)
     preds = load_optional_csv(folder, "aqi_predictions.csv")
-    if len(preds):
-        model_names = sorted(preds["model"].dropna().unique())
-        model = st.selectbox("Observed versus predicted model", model_names)
-        q = preds[preds["model"] == model].copy()
-        scatter = alt.Chart(downsample(q, 5000)).mark_circle(opacity=.42, color="#16815d").encode(
+    if len(aqi_metrics):
+        all_model_names = list(dict.fromkeys(aqi_metrics["display_model"].dropna().astype(str)))
+        model = st.selectbox("Model diagnostics", all_model_names, help="All trained AQI models are listed. Point-level diagnostics require saved prediction rows.")
+        selected_metric = aqi_metrics[aqi_metrics["display_model"].astype(str).eq(model)].iloc[0]
+        d1, d2, d3, d4, d5 = st.columns(5)
+        with d1: metric_card("N", "Validation rows", f'{int(selected_metric["n"]):,}', model)
+        with d2: metric_card("E", "MAE", f'{selected_metric["MAE"]:.2f}', "Lower is better")
+        with d3: metric_card("R", "RMSE", f'{selected_metric["RMSE"]:.2f}', "Lower is better")
+        with d4: metric_card("R²", "Coefficient", f'{selected_metric["R2"]:.3f}', "Higher is better")
+        with d5: metric_card("B", "Bias", f'{selected_metric["Bias"]:.2f}', "Closer to zero")
+    if len(preds) and "model" in locals():
+        saved_names = set(preds["model"].dropna().astype(str))
+        if model in saved_names:
+            q = preds[preds["model"] == model].copy()
+        else:
+            q = pd.DataFrame()
+        if len(q):
+            section("Point-level validation", f"Observed versus predicted · {model}")
+            scatter = alt.Chart(downsample(q, 5000)).mark_circle(opacity=.42, color="#16815d").encode(
             x=alt.X("observed:Q", title="Observed AQI"), y=alt.Y("predicted:Q", title="Predicted AQI"),
             tooltip=[alt.Tooltip("observed:Q", format=".1f"), alt.Tooltip("predicted:Q", format=".1f")]
-        ).properties(height=380).interactive()
-        diagonal = alt.Chart(pd.DataFrame({"x": [q.observed.min(), q.observed.max()]})).mark_line(color="#e28b38", strokeDash=[5,5]).encode(x="x:Q", y="x:Q")
-        st.altair_chart(scatter + diagonal, use_container_width=True)
+            ).properties(height=380).interactive()
+            diagonal = alt.Chart(pd.DataFrame({"x": [q.observed.min(), q.observed.max()]})).mark_line(color="#e28b38", strokeDash=[5,5]).encode(x="x:Q", y="x:Q")
+            st.altair_chart(scatter + diagonal, use_container_width=True)
+            q["residual"] = q["predicted"] - q["observed"]
+            q["observed_category"] = q["observed"].map(lambda x: aqi_style(float(x))[0])
+            q["predicted_category"] = q["predicted"].map(lambda x: aqi_style(float(x))[0])
+            left_diag, right_diag = st.columns(2)
+            with left_diag:
+                section("Error structure", "Residual distribution")
+                residual_chart = alt.Chart(q).mark_bar(color="#2d8f70").encode(x=alt.X("residual:Q", bin=alt.Bin(maxbins=45), title="Predicted − observed AQI"), y=alt.Y("count():Q", title="Rows"), tooltip=["count():Q"])
+                st.altair_chart(residual_chart.properties(height=300), use_container_width=True)
+            with right_diag:
+                section("Classification view", "AQI-category confusion matrix")
+                confusion = q.groupby(["observed_category", "predicted_category"]).size().rename("count").reset_index()
+                confusion_chart = alt.Chart(confusion).mark_rect().encode(
+                    x=alt.X("predicted_category:N", sort=[x[2] for x in AQI_BANDS], title="Predicted"),
+                    y=alt.Y("observed_category:N", sort=[x[2] for x in AQI_BANDS], title="Observed"),
+                    color=alt.Color("count:Q", scale=alt.Scale(scheme="greens")), tooltip=["observed_category:N", "predicted_category:N", "count:Q"])
+                labels = alt.Chart(confusion).mark_text().encode(x=alt.X("predicted_category:N", sort=[x[2] for x in AQI_BANDS]), y=alt.Y("observed_category:N", sort=[x[2] for x in AQI_BANDS]), text="count:Q")
+                st.altair_chart((confusion_chart + labels).properties(height=300), use_container_width=True)
+        elif "model" in locals():
+            st.warning(f"{model} has saved aggregate validation metrics but no row-level prediction file. Therefore observed–predicted, residual and confusion-matrix plots cannot be computed reliably for this model. GRU, PINN and PIIANN have saved rows in the current compact bundle.")
     st.info("These are held-out validation predictions from the saved workflow, not a live or future AQI forecast.")
 
 with quality_tab:
@@ -883,6 +972,95 @@ with quality_tab:
     st.markdown(f'<div class="data-note"><b>Selected timeline:</b> {len(filtered):,} hourly rows. Missing values remain missing and are not presented as observations. Coverage varies by station and variable.</div>', unsafe_allow_html=True)
     export_cols = [c for c in ["timestamp", "aqi", "aqi_category", *POLLUTANTS.keys(), "temperature", "rh", "ws", "wd", "rain"] if c in filtered]
     st.download_button("Download selected data as CSV", filtered[export_cols].to_csv(index=False).encode("utf-8"), f"{city}_{station}_selected_data.csv".replace(" ", "_"), "text/csv")
+
+with stats_tab:
+    section("Descriptive evidence", "Manuscript-style statistical atlas")
+    numeric_candidates = [c for c in ["aqi", *POLLUTANTS.keys(), "temperature", "rh", "ws", "rain", "pressure"] if c in filtered]
+    stats = descriptive_statistics(filtered, numeric_candidates)
+    s1, s2, s3, s4 = st.columns(4)
+    with s1: metric_card("Σ", "Variables summarized", f"{len(stats)}", "AQI, pollutants and weather")
+    with s2: metric_card("N", "Timeline rows", f"{len(filtered):,}", "Selected period")
+    with s3: metric_card("∅", "Total missing cells", f'{int(filtered[numeric_candidates].isna().sum().sum()):,}', "Selected variables")
+    with s4: metric_card("≈", "Median AQI", f'{filtered["aqi"].median():.1f}' if filtered["aqi"].notna().any() else "—", "Robust centre")
+    st.dataframe(stats, use_container_width=True, hide_index=True, column_config={c: st.column_config.NumberColumn(format="%.2f") for c in stats.columns if c not in ["Variable", "N", "Missing", "Unique"]})
+    st.download_button("Download descriptive statistics", stats.to_csv(index=False).encode("utf-8"), f"{city}_{station}_descriptive_statistics.csv".replace(" ", "_"), "text/csv")
+
+    section("Distribution summary", "Box plots across measured variables")
+    normalized = filtered[numeric_candidates].copy()
+    normalized = (normalized - normalized.median()) / normalized.apply(lambda s: s.quantile(.75) - s.quantile(.25)).replace(0, np.nan)
+    normalized = downsample(normalized, 10000).melt(var_name="variable", value_name="robust_scaled").dropna()
+    normalized["variable"] = normalized["variable"].map(lambda x: "AQI" if x == "aqi" else POLLUTANTS.get(x, x.replace("_", " ").title()))
+    st.altair_chart(alt.Chart(normalized).mark_boxplot(extent=1.5).encode(x=alt.X("variable:N", title=None), y=alt.Y("robust_scaled:Q", title="Robust-scaled value"), color=alt.Color("variable:N", legend=None)).properties(height=390), use_container_width=True)
+    source_note("Statistical atlas. Descriptive summaries and distribution comparison", ["Wright2020", "Evolution2023"])
+
+with patterns_tab:
+    section("Temporal signatures", "Dense pattern atlas")
+    variable = st.selectbox("Pattern variable", [c for c in ["aqi", *POLLUTANTS.keys()] if c in filtered and filtered[c].notna().any()], format_func=lambda x: "AQI" if x == "aqi" else POLLUTANTS[x], key="pattern_variable")
+    qpattern = filtered[["timestamp", variable]].dropna().copy()
+    qpattern["hour"] = qpattern["timestamp"].dt.hour
+    qpattern["weekday"] = qpattern["timestamp"].dt.day_name().str[:3]
+    qpattern["month"] = qpattern["timestamp"].dt.month
+    qpattern["year"] = qpattern["timestamp"].dt.year
+    qpattern["season"] = qpattern["timestamp"].dt.month.map({12:"Winter",1:"Winter",2:"Winter",3:"Pre-monsoon",4:"Pre-monsoon",5:"Pre-monsoon",6:"Monsoon",7:"Monsoon",8:"Monsoon",9:"Monsoon",10:"Post-monsoon",11:"Post-monsoon"})
+    p1, p2 = st.columns(2)
+    with p1:
+        section("Pattern 1", "Hour × weekday heatmap")
+        hw = qpattern.groupby(["weekday", "hour"], as_index=False)[variable].mean()
+        st.altair_chart(alt.Chart(hw).mark_rect().encode(x=alt.X("hour:O", title="Hour"), y=alt.Y("weekday:N", sort=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], title=None), color=alt.Color(f"{variable}:Q", scale=alt.Scale(scheme="yelloworangered")), tooltip=["weekday:N", "hour:O", alt.Tooltip(f"{variable}:Q", format=".1f")]).properties(height=330), use_container_width=True)
+    with p2:
+        section("Pattern 2", "Month × year heatmap")
+        my = qpattern.groupby(["year", "month"], as_index=False)[variable].mean()
+        st.altair_chart(alt.Chart(my).mark_rect().encode(x=alt.X("month:O", title="Month"), y=alt.Y("year:O", title="Year"), color=alt.Color(f"{variable}:Q", scale=alt.Scale(scheme="yelloworangered")), tooltip=["year:O", "month:O", alt.Tooltip(f"{variable}:Q", format=".1f")]).properties(height=330), use_container_width=True)
+    p3, p4 = st.columns(2)
+    with p3:
+        section("Pattern 3", "Seasonal violin-density view")
+        density = alt.Chart(downsample(qpattern, 10000)).transform_density(variable, as_=[variable, "density"], groupby=["season"]).mark_area(orient="horizontal", opacity=.65).encode(y=alt.Y(f"{variable}:Q", title="AQI" if variable == "aqi" else POLLUTANTS[variable]), x=alt.X("density:Q", stack="center", title=None), color=alt.Color("season:N", legend=None), column=alt.Column("season:N", sort=["Winter","Pre-monsoon","Monsoon","Post-monsoon"], title=None)).properties(width=120, height=300)
+        st.altair_chart(density, use_container_width=True)
+    with p4:
+        section("Pattern 4", "Exceedance-frequency curve")
+        exceed = qpattern[[variable]].sort_values(variable, ascending=False).reset_index(drop=True)
+        exceed["Percent of observations"] = 100 * (exceed.index + 1) / len(exceed)
+        st.altair_chart(alt.Chart(downsample(exceed, 5000)).mark_line(color="#b74747", strokeWidth=2).encode(x=alt.X("Percent of observations:Q"), y=alt.Y(f"{variable}:Q"), tooltip=[alt.Tooltip("Percent of observations:Q", format=".1f"), alt.Tooltip(f"{variable}:Q", format=".1f")]).properties(height=330), use_container_width=True)
+    section("Pattern 5", "Empirical cumulative distribution")
+    ecdf = qpattern[[variable]].sort_values(variable).reset_index(drop=True)
+    ecdf["Cumulative percent"] = 100 * (ecdf.index + 1) / len(ecdf)
+    st.altair_chart(alt.Chart(downsample(ecdf, 6000)).mark_line(color="#176f54", strokeWidth=2.5).encode(x=alt.X(f"{variable}:Q"), y=alt.Y("Cumulative percent:Q"), tooltip=[alt.Tooltip(f"{variable}:Q", format=".1f"), alt.Tooltip("Cumulative percent:Q", format=".1f")]).properties(height=360), use_container_width=True)
+    source_note("Temporal pattern atlas", ["Li2016", "Liu2016", "HD2023"])
+
+with advanced_tab:
+    section("Multivariate analysis", "Principal component analysis")
+    pca_columns = [c for c in ["aqi", *POLLUTANTS.keys(), "temperature", "rh", "ws", "pressure"] if c in filtered and filtered[c].notna().sum() >= 20]
+    scores, loadings, ratios = pca_scores(filtered, pca_columns)
+    if len(scores):
+        a1, a2, a3 = st.columns(3)
+        with a1: metric_card("PC1", "Variance explained", f"{ratios[0]*100:.1f}%", "First component")
+        with a2: metric_card("PC2", "Variance explained", f"{ratios[1]*100:.1f}%", "Second component")
+        with a3: metric_card("N", "Complete PCA rows", f"{len(scores):,}", f"{len(loadings)} variables")
+        left_pca, right_pca = st.columns([1.35, 1])
+        with left_pca:
+            st.altair_chart(alt.Chart(scores).mark_circle(opacity=.35, size=35).encode(x=alt.X("PC1:Q", title=f"PC1 ({ratios[0]*100:.1f}%)"), y=alt.Y("PC2:Q", title=f"PC2 ({ratios[1]*100:.1f}%)"), color=alt.Color("season:N"), tooltip=["timestamp:T", "season:N", alt.Tooltip("PC1:Q", format=".2f"), alt.Tooltip("PC2:Q", format=".2f")]).properties(height=390).interactive(), use_container_width=True)
+        with right_pca:
+            load_long = loadings.melt("Variable", var_name="Component", value_name="Loading")
+            st.altair_chart(alt.Chart(load_long).mark_bar().encode(y=alt.Y("Variable:N", title=None), x=alt.X("Loading:Q"), color=alt.Color("Component:N"), row=alt.Row("Component:N", title=None), tooltip=["Variable:N", "Component:N", alt.Tooltip("Loading:Q", format=".3f")]).properties(height=160), use_container_width=True)
+    else:
+        st.info("PCA requires at least two sufficiently complete numeric variables.")
+
+    section("Event intelligence", "Pollution episodes and anomalies")
+    episodes = episode_table(filtered)
+    e1, e2, e3 = st.columns(3)
+    with e1: metric_card("#", "Poor+ episodes", f"{len(episodes)}", "Daily mean AQI > 200")
+    with e2: metric_card("↔", "Longest episode", f'{int(episodes["Duration_days"].max())} days' if len(episodes) else "0 days", "Consecutive days")
+    with e3: metric_card("↑", "Highest episode peak", f'{episodes["Peak_AQI"].max():.0f}' if len(episodes) else "—", "Daily mean AQI")
+    if len(episodes):
+        st.dataframe(episodes.head(25), use_container_width=True, hide_index=True)
+    anomaly = filtered[["timestamp", "aqi"]].dropna().copy()
+    median = anomaly["aqi"].median()
+    mad = (anomaly["aqi"] - median).abs().median()
+    anomaly["robust_z"] = .6745 * (anomaly["aqi"] - median) / mad if mad else 0
+    anomaly["Anomaly"] = anomaly["robust_z"].abs() > 3.5
+    base_anomaly = alt.Chart(downsample(anomaly, 8000)).encode(x=alt.X("timestamp:T", title=None), y=alt.Y("aqi:Q", title="AQI"))
+    st.altair_chart((base_anomaly.mark_line(color="#96afa5") + base_anomaly.transform_filter(alt.datum.Anomaly).mark_circle(color="#c94343", size=55).encode(tooltip=["timestamp:T", alt.Tooltip("aqi:Q", format=".1f"), alt.Tooltip("robust_z:Q", format=".2f")])).properties(height=360), use_container_width=True)
+    source_note("Advanced analytics. PCA, pollution episodes and robust anomaly screening", ["Liu2021", "HD2023"])
 
 st.markdown("---")
 st.caption("AirScope · Prepared for the MCA project submission of Rama Siva Kiran Reddy (A24CA0239), Centre for Distance and Online Education, Andhra University · Historical CPCB workbench results · Health guidance is informational, not medical advice.")
