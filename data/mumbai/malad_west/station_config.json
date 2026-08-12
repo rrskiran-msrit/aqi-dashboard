@@ -1,0 +1,46 @@
+{
+  "city": "Mumbai",
+  "station": "Malad West",
+  "history_hours": 24,
+  "forecast_horizon": 1,
+  "split_mode": "random_80_10_10",
+  "features": [
+    "hour_sin",
+    "hour_cos",
+    "doy_sin",
+    "doy_cos",
+    "month_sin",
+    "month_cos",
+    "aqi_observed_mask",
+    "total_rain",
+    "o3",
+    "aqi",
+    "co",
+    "pm10",
+    "so2",
+    "nox",
+    "nh3",
+    "no2",
+    "no",
+    "pm25"
+  ],
+  "pollutant_targets": [
+    "pm25",
+    "pm10",
+    "no2",
+    "so2",
+    "co",
+    "o3"
+  ],
+  "aqi_categories": [
+    "Good",
+    "Satisfactory",
+    "Moderate",
+    "Poor",
+    "Very Poor",
+    "Severe"
+  ],
+  "model_directory_relative": "models",
+  "data_file": "station_hourly.parquet",
+  "metrics_file": "model_metrics.csv"
+}
