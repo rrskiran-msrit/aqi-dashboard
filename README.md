@@ -1,6 +1,6 @@
-Multi-City Air Quality Intelligence Dashboard
+# PIIANN AQI Dashboard
 
-Multi-City Air Quality Intelligence Dashboard is an interactive, data-driven air-quality monitoring and model-analysis dashboard built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
+PIIANN AQI Dashboard is an interactive, data-driven air-quality monitoring and model-analysis application built with Streamlit. It presents historical hourly air-quality observations, station-to-station comparisons, pollutant behaviour, data-quality information, and validation results from conventional and physics-informed machine-learning models.
 
 The project is intended to make detailed air-quality analysis easier to explore for researchers, students, policymakers, environmental professionals, and members of the public. It complements the underlying scientific workflow by converting its processed results into an accessible web application.
 
@@ -26,12 +26,14 @@ The dashboard is being developed to:
 |---|---:|
 | Delhi | 38 |
 | Mumbai | 19 |
+| Kolkata | 7 |
+| Chennai | 9 |
 | Hyderabad | 14 |
 | Bengaluru | 13 |
 | Jaipur | 6 |
-| **Total** | **90** |
+| **Total** | **106** |
 
-The city selector is deliberately ordered as Delhi, Mumbai, Hyderabad, Bengaluru, and Jaipur. Additional cities are discovered from the dashboard's compact station registry after import.
+The city selector is deliberately ordered as Delhi, Mumbai, Kolkata, Chennai, Hyderabad, Bengaluru, and Jaipur. Additional cities are discovered from the dashboard's compact station registry after import.
 
 ## Application pages
 
@@ -40,6 +42,24 @@ The city selector is deliberately ordered as Delhi, Mumbai, Hyderabad, Bengaluru
 - **Research visuals:** manuscript-style station–pollutant bubble tables, ranked dot plots, calendar/temporal heatmaps, seasonal distributions and correlation-dot matrices.
 - **References:** searchable author–year bibliography with direct article/PDF links.
 - **About & acknowledgement:** formal MCA project-submission details and acknowledgement.
+
+The City Dashboard begins with the publication-quality national study-area figure and a separate interactive seven-city map. Hovering over a processed city displays its station count, latest historical median AQI, AQI category, station range, and most recent available record. The 250 km circles indicate nominal study domains rather than pollutant dispersion or administrative boundaries.
+
+## Methodological framework diagrams
+
+The following diagrams summarize the dashboard workflow from processed hourly data and the multi-city registry through user selection, city/station analysis, model evidence, interpretation, quality safeguards, and downloadable outputs.
+
+> **Version note:** These diagrams were prepared for an earlier dashboard version and therefore retain the former “AirScope” heading and the earlier three-city/33-station registry. The current application is named **PIIANN AQI Dashboard** and contains **seven cities and 106 monitoring stations**. The overall methodological flow remains applicable.
+
+### Colour version
+
+![Methodological framework of the PIIANN AQI Dashboard — colour version](AirScope_Methodology_Flow_Diagram.png)
+
+### Black-and-white version
+
+The black-and-white version is provided for thesis printing, monochrome reports, and manuscript submission requirements.
+
+![Methodological framework of the PIIANN AQI Dashboard — black-and-white version](AirScope_Methodology_Flow_Diagram_BW.png)
 
 ## Dashboard capabilities
 
@@ -104,6 +124,19 @@ The station-level interface provides detailed investigation of one monitoring lo
 - Observed-versus-predicted scatterplot where rows were saved
 - Variable-level data coverage
 - Filtered CSV download
+- GRU, PINN, and PIIANN available in the point-level model-diagnostics selector
+- Model-specific MAE, RMSE, R², bias, and validation-row cards
+- Residual histogram and AQI-category confusion matrix where prediction rows were saved
+- Manuscript-style descriptive table with confidence intervals, percentiles, skewness, and kurtosis
+- Robust-scaled multi-variable box plots
+- Hour × weekday and month × year heatmaps
+- Seasonal density/violin view
+- Exceedance-frequency and empirical cumulative-distribution curves
+- Principal component analysis with seasonal score plot and component loadings
+- Consecutive Poor+ pollution-episode table
+- Robust anomaly screening and annotated anomaly time series
+
+Point-level prediction diagnostics are displayed only for GRU, PINN, and PIIANN because the compact bundles contain observed and predicted rows for these models. Random Forest, Gradient Boosting, Linear Regression, and Persistence remain in the aggregate model-comparison chart but are temporarily excluded from the diagnostic selector.
 
 ## AQI categories
 
@@ -139,7 +172,7 @@ The web application uses compact Parquet files for hourly data and CSV/JSON file
 
 ## Fair-comparison safeguards
 
-Air-quality comparisons can be misleading when stations have different observation periods or missing-data rates. AirScope therefore applies the following safeguards:
+Air-quality comparisons can be misleading when stations have different observation periods or missing-data rates. The PIIANN AQI Dashboard therefore applies the following safeguards:
 
 - map values are matched to one shared date and hour;
 - users choose an acceptable nearest-observation tolerance;
@@ -165,6 +198,8 @@ The dashboard therefore labels saved prediction results as **model validation**,
 air-quality-piiml-dashboard/
 ├── streamlit_app.py             # Main Streamlit application
 ├── add_city.py                  # Compact city-bundle importer
+├── assets/
+│   └── Study-area.png           # Publication-quality India study-area figure
 ├── requirements.txt             # Python dependencies
 ├── README.md                    # Project documentation
 ├── .streamlit/
@@ -178,6 +213,8 @@ air-quality-piiml-dashboard/
     ├── jaipur/
     ├── delhi/
     ├── mumbai/
+    ├── chennai/
+    ├── kolkata/
     │   └── <station>/
     └── city_summary/
 ```
@@ -244,10 +281,49 @@ The importer:
 
 After importing a city, restart Streamlit or clear its data cache.
 
+## Deploying on Streamlit Community Cloud
+
+1. Create a public GitHub repository.
+2. Upload the repository contents, but do not upload `.venv`, `__pycache__`, logs, result ZIP files, or original training folders.
+3. Sign in at [Streamlit Community Cloud](https://share.streamlit.io/).
+4. Select the GitHub repository and branch.
+5. Set the entrypoint to `streamlit_app.py`.
+6. Select a supported Python version, preferably Python 3.12 or 3.13.
+7. Choose an available `*.streamlit.app` subdomain.
+8. Deploy and set the application to public access.
+9. Test the public URL in a private/incognito browser before sharing it.
+
+## Reproducibility and responsible use
+
+- Dashboard results depend on the supplied processed station bundles.
+- Missing values remain missing and are not presented as observations.
+- Station coverage varies by city, station, variable, and period.
+- Model metrics should only be compared under compatible validation settings.
+- Correlation does not establish a pollution source or causal relationship.
+- The application should not be used for emergency response or individual medical decisions.
+- A public dashboard URL should be accompanied by a versioned source-code/data archive for scholarly publication.
+
+For manuscript publication, consider archiving a release through Zenodo and citing both the live Streamlit application and the archived DOI.
+
+## Suggested citation
+
+Replace the placeholders below after the manuscript, repository, and archival release are finalized:
+
+```text
+[Author(s)]. (Year). PIIANN AQI Dashboard
+[Software]. Version X.Y.Z. GitHub: [repository URL].
+Live application: [Streamlit application URL].
+Archived version: [Zenodo DOI].
+```
+
+## Research acknowledgement
+
+This dashboard is the presentation layer for a broader air-quality processing and physics-informed machine-learning workflow. The scientific manuscript should be consulted for complete information about data provenance, preprocessing, feature construction, model architecture, training, validation, uncertainty, and interpretation.
+
 ## Licence
 
-MIT License
+No licence has yet been specified in this repository. Before public reuse or manuscript publication, add an appropriate software licence and confirm that redistribution of the processed air-quality data is permitted by the original data provider's terms.
 
 ## Contact
 
-Email: rrskiran@msrit.edu
+For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email here.
