@@ -12,6 +12,14 @@ import streamlit as st
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / "data"
+ASSET_DIR = APP_DIR / "assets"
+
+CITY_CENTRES = {
+    "Delhi": (28.6139, 77.2090), "Mumbai": (19.0760, 72.8777),
+    "Kolkata": (22.5726, 88.3639), "Chennai": (13.0827, 80.2707),
+    "Hyderabad": (17.3850, 78.4867), "Bengaluru": (12.9716, 77.5946),
+    "Jaipur": (26.9124, 75.7873),
+}
 
 AQI_BANDS = [
     (0, 50, "Good", "#22A06B"),
@@ -206,6 +214,83 @@ def episode_table(df: pd.DataFrame) -> pd.DataFrame:
         Mean_AQI=("aqi", "mean"), Peak_AQI=("aqi", "max"),
     ).reset_index(drop=True)
     return episodes.sort_values(["Duration_days", "Peak_AQI"], ascending=False)
+
+
+@st.cache_data(show_spinner=False, max_entries=1)
+def national_city_snapshot(index_records: tuple[tuple[str, str, str], ...]) -> pd.DataFrame:
+    """Summarize the latest historical AQI available at every registered station."""
+    rows = []
+    for city_name, station_name, folder_name in index_records:
+        path = DATA_DIR / folder_name / "station_hourly.parquet"
+        try:
+            q = pd.read_parquet(path, columns=["timestamp", "aqi"])
+        except Exception:
+            continue
+        q["timestamp"] = pd.to_datetime(q["timestamp"], errors="coerce")
+        latest = q.dropna(subset=["timestamp", "aqi"]).sort_values("timestamp").tail(1)
+        if len(latest):
+            rows.append({"city": city_name, "station": station_name, "timestamp": latest.iloc[0]["timestamp"], "aqi": float(latest.iloc[0]["aqi"])})
+    latest = pd.DataFrame(rows)
+    if latest.empty:
+        return latest
+    result = latest.groupby("city", as_index=False).agg(
+        stations=("station", "nunique"), city_aqi=("aqi", "median"),
+        minimum_aqi=("aqi", "min"), maximum_aqi=("aqi", "max"), latest_observation=("timestamp", "max"),
+    )
+    result["category"] = result["city_aqi"].map(lambda value: aqi_style(float(value))[0])
+    result["color"] = result["city_aqi"].map(lambda value: aqi_style(float(value))[1])
+    result["latitude"] = result["city"].map(lambda name: CITY_CENTRES.get(name, (np.nan, np.nan))[0])
+    result["longitude"] = result["city"].map(lambda name: CITY_CENTRES.get(name, (np.nan, np.nan))[1])
+    result["aqi_display"] = result["city_aqi"].round().astype(int).astype(str)
+    result["range_display"] = result.apply(lambda r: f'{r.minimum_aqi:.0f}–{r.maximum_aqi:.0f}', axis=1)
+    result["time_display"] = result["latest_observation"].dt.strftime("%d %b %Y · %H:%M")
+    result["fill_color"] = result["color"].map(hex_to_rgba)
+    return result.dropna(subset=["latitude", "longitude"])
+
+
+def render_study_area(index_df: pd.DataFrame) -> None:
+    section("National study coverage", "Seven-city study area")
+    image_path = ASSET_DIR / "Study-area.png"
+    if image_path.exists():
+        st.image(str(image_path), caption="Figure 1. National study-area framework used to guide the selection and expansion of Indian urban air-quality domains.", use_container_width=True)
+        st.markdown(
+            '<div class="data-note"><b>Interpretation.</b> The static publication figure presents the broader study design and nominal 250 km city-centred domains. '
+            'The operational dashboard below is restricted to the seven cities whose station bundles have been processed: Delhi, Mumbai, Kolkata, Chennai, Hyderabad, Bengaluru and Jaipur. '
+            'The dotted radii represent study domains; they are not pollutant-plume boundaries or administrative limits.</div>',
+            unsafe_allow_html=True,
+        )
+        st.download_button("Download full-resolution study-area figure", image_path.read_bytes(), "PIIANN_AQI_Study_Area.png", "image/png")
+
+    records = tuple((str(r.city), str(r.station), str(r.station_folder).replace("\\", "/")) for r in index_df.itertuples())
+    with st.spinner("Preparing seven-city historical snapshot…"):
+        national = national_city_snapshot(records)
+    if national.empty:
+        return
+    c1, c2, c3, c4 = st.columns(4)
+    with c1: metric_card("7", "Processed cities", f'{national["city"].nunique()}', "Major Indian urban centres")
+    with c2: metric_card("●", "Monitoring stations", f'{int(national["stations"].sum())}', "Compact project registry")
+    with c3: metric_card("↕", "Historical AQI range", f'{national["minimum_aqi"].min():.0f}–{national["maximum_aqi"].max():.0f}', "Across latest station records")
+    with c4: metric_card("◷", "Latest data date", national["latest_observation"].max().strftime("%d %b %Y"), "Most recent station record")
+
+    section("Interactive national view", "Hover over a city for its latest historical summary")
+    radius_layer = pdk.Layer(
+        "ScatterplotLayer", national, get_position="[longitude, latitude]", get_radius=250000,
+        get_fill_color=[44, 124, 94, 20], get_line_color=[34, 102, 79, 120], stroked=True,
+        filled=True, line_width_min_pixels=1, pickable=False,
+    )
+    marker_layer = pdk.Layer(
+        "ScatterplotLayer", national, get_position="[longitude, latitude]", get_radius=45000,
+        get_fill_color="fill_color", get_line_color=[255, 255, 255, 240], stroked=True,
+        line_width_min_pixels=2, radius_min_pixels=8, radius_max_pixels=18, pickable=True, auto_highlight=True,
+    )
+    label_layer = pdk.Layer(
+        "TextLayer", national, get_position="[longitude, latitude]", get_text="city",
+        get_size=15, get_color=[17, 47, 38, 230], get_pixel_offset=[0, -22],
+        get_alignment_baseline="bottom", pickable=False,
+    )
+    tooltip = {"html": "<b style='font-size:16px'>{city}</b><br/><b>Median AQI:</b> {aqi_display} ({category})<br/><b>Station range:</b> {range_display}<br/><b>Stations:</b> {stations}<br/><b>Latest record:</b> {time_display}<br/><span style='font-size:11px'>Historical station snapshot—not a live feed</span>", "style": {"backgroundColor": "#10261f", "color": "white", "borderRadius": "10px"}}
+    st.pydeck_chart(pdk.Deck(layers=[radius_layer, marker_layer, label_layer], initial_view_state=pdk.ViewState(latitude=22.5, longitude=79.0, zoom=3.5), tooltip=tooltip, map_style=None), use_container_width=True)
+    st.caption("Marker colour follows the CPCB AQI category of the median latest station AQI. Dates can differ between stations and cities; use each city dashboard for a shared time-aligned comparison.")
 
 
 @st.cache_data(show_spinner=False, max_entries=4)
@@ -526,7 +611,7 @@ def render_research_visuals(city_name: str, city_rows: pd.DataFrame) -> None:
         source_note("Figure 6. Spearman correlation dot matrix", ["HD2023", "Evolution2023"])
 
 
-def render_city_overview(city_name: str, city_rows: pd.DataFrame) -> None:
+def render_city_overview(city_name: str, city_rows: pd.DataFrame, full_index: pd.DataFrame) -> None:
     records = tuple((str(r.station), str(r.station_folder).replace("\\", "/")) for r in city_rows.itertuples())
     min_ts, max_ts = city_date_bounds(tuple(x[1] for x in records))
     st.sidebar.markdown("---")
@@ -562,6 +647,9 @@ def render_city_overview(city_name: str, city_rows: pd.DataFrame) -> None:
         unsafe_allow_html=True,
     )
     st.write("")
+    render_study_area(full_index)
+    st.markdown("---")
+    section("Selected-city dashboard", f"Detailed analysis for {city_name}")
     cards = st.columns(5)
     with cards[0]: metric_card("◎", "City median AQI", f"{city_aqi:.0f}" if pd.notna(city_aqi) else "—", city_category)
     with cards[1]: metric_card("↘", "Cleanest at snapshot", best_now, "Lowest available AQI")
@@ -756,7 +844,7 @@ if app_page == "Research visuals":
     st.caption("Research visualizations are calculated from project data. See References for the published design sources.")
     st.stop()
 if app_page == "City dashboard":
-    render_city_overview(city, city_index)
+    render_city_overview(city, city_index, index)
     st.markdown("---")
     st.caption("PIIANN AQI Dashboard · City comparisons use a common period, shared snapshot time and explicit data-coverage safeguards. See References for visualization sources.")
     st.stop()
