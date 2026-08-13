@@ -731,7 +731,7 @@ def render_city_overview(city_name: str, city_rows: pd.DataFrame) -> None:
 
 
 index = load_index()
-st.sidebar.markdown("## AirScope")
+st.sidebar.markdown("## PIIANN AQI Dashboard")
 st.sidebar.caption("Physics-guided air-quality intelligence")
 app_page = st.sidebar.radio(
     "NAVIGATION",
@@ -745,7 +745,7 @@ if app_page == "About & acknowledgement":
     render_about_page()
     st.stop()
 
-preferred_city_order = ["Delhi", "Mumbai", "Hyderabad", "Bengaluru", "Jaipur"]
+preferred_city_order = ["Delhi", "Mumbai", "Kolkata", "Chennai", "Hyderabad", "Bengaluru", "Jaipur"]
 available_cities = list(index["city"].dropna().unique())
 ordered_cities = [c for c in preferred_city_order if c in available_cities] + sorted(c for c in available_cities if c not in preferred_city_order)
 city = st.sidebar.selectbox("CITY", ordered_cities)
@@ -758,7 +758,7 @@ if app_page == "Research visuals":
 if app_page == "City dashboard":
     render_city_overview(city, city_index)
     st.markdown("---")
-    st.caption("AirScope · City comparisons use a common period, shared snapshot time and explicit data-coverage safeguards. See References for visualization sources.")
+    st.caption("PIIANN AQI Dashboard · City comparisons use a common period, shared snapshot time and explicit data-coverage safeguards. See References for visualization sources.")
     st.stop()
 station = st.sidebar.selectbox("MONITORING STATION", sorted(city_index["station"].unique()))
 row = city_index[city_index["station"] == station].iloc[0]
@@ -913,9 +913,10 @@ with models_tab:
         ).properties(height=320)
         st.altair_chart(metric_chart, use_container_width=True)
     preds = load_optional_csv(folder, "aqi_predictions.csv")
-    if len(aqi_metrics):
-        all_model_names = list(dict.fromkeys(aqi_metrics["display_model"].dropna().astype(str)))
-        model = st.selectbox("Model diagnostics", all_model_names, help="All trained AQI models are listed. Point-level diagnostics require saved prediction rows.")
+    if len(aqi_metrics) and len(preds):
+        saved_model_names = set(preds["model"].dropna().astype(str))
+        diagnostic_models = [name for name in ["GRU", "PINN", "PIIANN"] if name in saved_model_names]
+        model = st.selectbox("Model diagnostics", diagnostic_models, help="Only models with saved point-level predictions are shown here.")
         selected_metric = aqi_metrics[aqi_metrics["display_model"].astype(str).eq(model)].iloc[0]
         d1, d2, d3, d4, d5 = st.columns(5)
         with d1: metric_card("N", "Validation rows", f'{int(selected_metric["n"]):,}', model)
@@ -924,11 +925,7 @@ with models_tab:
         with d4: metric_card("R²", "Coefficient", f'{selected_metric["R2"]:.3f}', "Higher is better")
         with d5: metric_card("B", "Bias", f'{selected_metric["Bias"]:.2f}', "Closer to zero")
     if len(preds) and "model" in locals():
-        saved_names = set(preds["model"].dropna().astype(str))
-        if model in saved_names:
-            q = preds[preds["model"] == model].copy()
-        else:
-            q = pd.DataFrame()
+        q = preds[preds["model"] == model].copy()
         if len(q):
             section("Point-level validation", f"Observed versus predicted · {model}")
             scatter = alt.Chart(downsample(q, 5000)).mark_circle(opacity=.42, color="#16815d").encode(
@@ -954,8 +951,6 @@ with models_tab:
                     color=alt.Color("count:Q", scale=alt.Scale(scheme="greens")), tooltip=["observed_category:N", "predicted_category:N", "count:Q"])
                 labels = alt.Chart(confusion).mark_text().encode(x=alt.X("predicted_category:N", sort=[x[2] for x in AQI_BANDS]), y=alt.Y("observed_category:N", sort=[x[2] for x in AQI_BANDS]), text="count:Q")
                 st.altair_chart((confusion_chart + labels).properties(height=300), use_container_width=True)
-        elif "model" in locals():
-            st.warning(f"{model} has saved aggregate validation metrics but no row-level prediction file. Therefore observed–predicted, residual and confusion-matrix plots cannot be computed reliably for this model. GRU, PINN and PIIANN have saved rows in the current compact bundle.")
     st.info("These are held-out validation predictions from the saved workflow, not a live or future AQI forecast.")
 
 with quality_tab:
@@ -1063,4 +1058,4 @@ with advanced_tab:
     source_note("Advanced analytics. PCA, pollution episodes and robust anomaly screening", ["Liu2021", "HD2023"])
 
 st.markdown("---")
-st.caption("AirScope · Prepared for the MCA project submission of Rama Siva Kiran Reddy (A24CA0239), Centre for Distance and Online Education, Andhra University · Historical CPCB workbench results · Health guidance is informational, not medical advice.")
+st.caption("PIIANN AQI Dashboard · Prepared for the MCA project submission of Rama Siva Kiran Reddy (A24CA0239), Centre for Distance and Online Education, Andhra University · Historical CPCB workbench results · Health guidance is informational, not medical advice.")
