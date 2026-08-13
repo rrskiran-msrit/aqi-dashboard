@@ -322,8 +322,8 @@ This dashboard is the presentation layer for a broader air-quality processing an
 
 ## Licence
 
-No licence has yet been specified in this repository. Before public reuse or manuscript publication, add an appropriate software licence and confirm that redistribution of the processed air-quality data is permitted by the original data provider's terms.
+MIT License
 
 ## Contact
 
-For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email here.
+For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email (rrskiran@msrit.edu)
