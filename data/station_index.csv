@@ -12,6 +12,15 @@ Bengaluru,RVCE-Mailasandra,bengaluru/rvce_mailasandra,station_hourly.parquet,mod
 Bengaluru,Sanegurava Halli,bengaluru/sanegurava_halli,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Bengaluru,Shivapura_Peenya,bengaluru/shivapura_peenya,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Bengaluru,Silk Board,bengaluru/silk_board,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Alandur Bus Depot,chennai/alandur_bus_depot,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Arumbakkam,chennai/arumbakkam,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Gandhi Nagar_Ennore,chennai/gandhi_nagar_ennore,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Kodungaiyur,chennai/kodungaiyur,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Manali,chennai/manali,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Manali Village,chennai/manali_village,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Perungudi,chennai/perungudi,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Royapuram,chennai/royapuram,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Chennai,Velachery Res. Area,chennai/velachery_res_area,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Delhi,Alipur,delhi/alipur,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Delhi,Anand Vihar,delhi/anand_vihar,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Delhi,Ashok Vihar,delhi/ashok_vihar,station_hourly.parquet,model_metrics.csv,station_config.json,models
@@ -70,6 +79,13 @@ Jaipur,Police Commissionerate,jaipur/police_commissionerate,station_hourly.parqu
 Jaipur,RIICO Sitapura,jaipur/riico_sitapura,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Jaipur,Sector-2 Murlipura,jaipur/sector_2_murlipura,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Jaipur,Shastri Nagar,jaipur/shastri_nagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Ballygunge,kolkata/ballygunge,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Bidhannagar,kolkata/bidhannagar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Fort William,kolkata/fort_william,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Jadavpur,kolkata/jadavpur,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Rabindra Bharati University,kolkata/rabindra_bharati_university,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Rabindra Sarobar,kolkata/rabindra_sarobar,station_hourly.parquet,model_metrics.csv,station_config.json,models
+Kolkata,Victoria,kolkata/victoria,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Mumbai,Bandra,mumbai/bandra,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Mumbai,Bandra Kurla Complex,mumbai/bandra_kurla_complex,station_hourly.parquet,model_metrics.csv,station_config.json,models
 Mumbai,Borivali East,mumbai/borivali_east,station_hourly.parquet,model_metrics.csv,station_config.json,models
