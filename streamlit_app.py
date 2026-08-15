@@ -462,7 +462,7 @@ def render_about_page() -> None:
     st.markdown("""
 With pride, immense pleasure and a profound sense of gratitude, I take this golden opportunity to express my heartiest and sincere thanks to my research guide, **Dr. Manish Kumar**, Associate Professor, School of Computer Science and Engineering, R V University, Bangalore, for his valuable guidance and encouragement throughout the progress of my thesis work.
 
-I thank **Prof. G. M. Madhu**, Head of the Department, Department of Chemical Engineering, M S Ramaiah Institute of Technology, Bengaluru, for providing the laboratory facilities for my work.
+I thank **Prof. G. M. Madhu**, Head of the Department, Department of Chemical Engineering, M S Ramaiah Institute of Technology (MSRIT), Bengaluru, for providing the laboratory facilities for my work. I also extend my sincere thanks to Dr. B. Sathish Babu, Principal, MSRIT, and the Management of MSRIT for their valuable support and encouragement.
 
 I express my deep sense of gratitude and sincere regards to the team at the **Centre for Distance and Online Education, Andhra University, Visakhapatnam**, for their excellent stewardship towards the successful completion of my thesis work.
 
