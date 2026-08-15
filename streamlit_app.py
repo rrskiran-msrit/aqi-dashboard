@@ -15,10 +15,16 @@ DATA_DIR = APP_DIR / "data"
 ASSET_DIR = APP_DIR / "assets"
 
 CITY_CENTRES = {
-    "Delhi": (28.6139, 77.2090), "Mumbai": (19.0760, 72.8777),
-    "Kolkata": (22.5726, 88.3639), "Chennai": (13.0827, 80.2707),
-    "Hyderabad": (17.3850, 78.4867), "Bengaluru": (12.9716, 77.5946),
-    "Jaipur": (26.9124, 75.7873),
+    "Ahmedabad": (23.0225, 72.5714), "Bengaluru": (12.9716, 77.5946),
+    "Bhopal": (23.2599, 77.4126), "Bhubaneswar": (20.2961, 85.8245),
+    "Chandigarh": (30.7333, 76.7794), "Chennai": (13.0827, 80.2707),
+    "Delhi": (28.6139, 77.2090), "Guwahati": (26.1445, 91.7362),
+    "Hyderabad": (17.3850, 78.4867), "Jaipur": (26.9124, 75.7873),
+    "Kanpur": (26.4499, 80.3319), "Kochi": (9.9312, 76.2673),
+    "Kolkata": (22.5726, 88.3639), "Lucknow": (26.8467, 80.9462),
+    "Mumbai": (19.0760, 72.8777), "Nagpur": (21.1458, 79.0882),
+    "Patna": (25.5941, 85.1376), "Pune": (18.5204, 73.8567),
+    "Raipur": (21.2514, 81.6296), "Surat": (21.1702, 72.8311),
 }
 
 AQI_BANDS = [
@@ -249,25 +255,25 @@ def national_city_snapshot(index_records: tuple[tuple[str, str, str], ...]) -> p
 
 
 def render_study_area(index_df: pd.DataFrame) -> None:
-    section("National study coverage", "Seven-city study area")
+    section("National study coverage", "Twenty-city study area")
     image_path = ASSET_DIR / "Study-area.png"
     if image_path.exists():
         st.image(str(image_path), caption="Figure 1. National study-area framework used to guide the selection and expansion of Indian urban air-quality domains.", use_container_width=True)
         st.markdown(
             '<div class="data-note"><b>Interpretation.</b> The static publication figure presents the broader study design and nominal 250 km city-centred domains. '
-            'The operational dashboard below is restricted to the seven cities whose station bundles have been processed: Delhi, Mumbai, Kolkata, Chennai, Hyderabad, Bengaluru and Jaipur. '
+            'The operational dashboard below summarizes all 20 cities whose station bundles have been processed. '
             'The dotted radii represent study domains; they are not pollutant-plume boundaries or administrative limits.</div>',
             unsafe_allow_html=True,
         )
         st.download_button("Download full-resolution study-area figure", image_path.read_bytes(), "PIIANN_AQI_Study_Area.png", "image/png")
 
     records = tuple((str(r.city), str(r.station), str(r.station_folder).replace("\\", "/")) for r in index_df.itertuples())
-    with st.spinner("Preparing seven-city historical snapshot…"):
+    with st.spinner("Preparing national historical snapshot…"):
         national = national_city_snapshot(records)
     if national.empty:
         return
     c1, c2, c3, c4 = st.columns(4)
-    with c1: metric_card("7", "Processed cities", f'{national["city"].nunique()}', "Major Indian urban centres")
+    with c1: metric_card("20", "Processed cities", f'{national["city"].nunique()}', "Major Indian urban centres")
     with c2: metric_card("●", "Monitoring stations", f'{int(national["stations"].sum())}', "Compact project registry")
     with c3: metric_card("↕", "Historical AQI range", f'{national["minimum_aqi"].min():.0f}–{national["maximum_aqi"].max():.0f}', "Across latest station records")
     with c4: metric_card("◷", "Latest data date", national["latest_observation"].max().strftime("%d %b %Y"), "Most recent station record")
@@ -289,7 +295,7 @@ def render_study_area(index_df: pd.DataFrame) -> None:
         get_alignment_baseline="bottom", pickable=False,
     )
     tooltip = {"html": "<b style='font-size:16px'>{city}</b><br/><b>Median AQI:</b> {aqi_display} ({category})<br/><b>Station range:</b> {range_display}<br/><b>Stations:</b> {stations}<br/><b>Latest record:</b> {time_display}<br/><span style='font-size:11px'>Historical station snapshot—not a live feed</span>", "style": {"backgroundColor": "#10261f", "color": "white", "borderRadius": "10px"}}
-    st.pydeck_chart(pdk.Deck(layers=[radius_layer, marker_layer, label_layer], initial_view_state=pdk.ViewState(latitude=22.5, longitude=79.0, zoom=3.5), tooltip=tooltip, map_style=None), use_container_width=True)
+    st.pydeck_chart(pdk.Deck(layers=[radius_layer, marker_layer, label_layer], initial_view_state=pdk.ViewState(latitude=22.4, longitude=79.2, zoom=4.15, pitch=0), tooltip=tooltip, map_style=None), use_container_width=True)
     st.caption("Marker colour follows the CPCB AQI category of the median latest station AQI. Dates can differ between stations and cities; use each city dashboard for a shared time-aligned comparison.")
 
 
