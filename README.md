@@ -4,6 +4,13 @@ PIIANN AQI Dashboard is an interactive, data-driven air-quality monitoring and m
 
 The project is intended to make detailed air-quality analysis easier to explore for researchers, students, policymakers, environmental professionals, and members of the public. It complements the underlying scientific workflow by converting its processed results into an accessible web application.
 
+This dashboard and report are submitted as part of the thesis work titled **“Development of Physics-Guided AI Platform for Local Air Quality Index Prediction and Monitoring in Indian Cities.”** The thesis is submitted to the **Centre for Distance and Online Education, Andhra University**, in partial fulfilment of the requirements for the award of the **Master of Computer Applications** degree.
+
+**Researcher:** Rama Siva Kiran Reddy (Reg. No. A24CA0239)  
+**Research guide:** Dr. Manish Kumar, Associate Professor, School of Computer Science and Engineering, R V University, Bangalore – 560059  
+**Institution:** Centre for Distance and Online Education, Andhra University, Visakhapatnam  
+**Year:** 2026
+
 > **Important:** The current deployment is a historical and model-validation dashboard. It is not a live CPCB sensor feed and must not be interpreted as a real-time warning system or medical service.
 
 ## Project objectives
@@ -24,16 +31,75 @@ The dashboard is being developed to:
 
 | City | Monitoring stations |
 |---|---:|
-| Delhi | 38 |
-| Mumbai | 19 |
-| Kolkata | 7 |
-| Chennai | 9 |
-| Hyderabad | 14 |
+| Ahmedabad | 9 |
 | Bengaluru | 13 |
+| Bhopal | 3 |
+| Bhubaneswar | 2 |
+| Chandigarh | 3 |
+| Chennai | 9 |
+| Delhi | 38 |
+| Guwahati | 4 |
+| Hyderabad | 14 |
 | Jaipur | 6 |
-| **Total** | **106** |
+| Kanpur | 4 |
+| Kochi | 1 |
+| Kolkata | 7 |
+| Lucknow | 6 |
+| Mumbai | 19 |
+| Nagpur | 4 |
+| Patna | 6 |
+| Pune | 7 |
+| Raipur | 4 |
+| Surat | 1 |
+| **Total** | **160** |
 
-The city selector is deliberately ordered as Delhi, Mumbai, Kolkata, Chennai, Hyderabad, Bengaluru, and Jaipur. Additional cities are discovered from the dashboard's compact station registry after import.
+The station registry contains **20 Indian cities and 160 monitoring stations**. The application discovers cities dynamically from `data/station_index.csv`; therefore, every imported city is available through the city selector without a separate code change.
+
+## Dataset scale and processing volume
+
+The complete multi-city workflow is based on **raw hourly air-quality data**. Source files were discovered, validated, standardized, quality-checked, and consolidated into one compact hourly Parquet dataset for each monitoring station. The following inventory was calculated directly from the current 20-city project files on **15 August 2026**:
+
+| Measure | Current verified total |
+|---|---:|
+| Cities | 20 |
+| Monitoring stations | 160 |
+| Raw annual source-file records found in the validated city manifests | 784 |
+| Standardized station-hour records analysed | **6,658,128 (6.66 million)** |
+| Non-missing AQI station-hour observations | **2,076,914 (2.08 million)** |
+| Non-missing measurements across PM2.5, PM10, NO2, SO2, CO and O3 | **13,207,214 (13.21 million)** |
+| Distinct hourly timestamps represented across the combined dataset | 43,368 |
+| Overall temporal extent | 1 January 2021 to 12 December 2025 |
+| Files in the 20 processed city result directories | **12,936** |
+
+The **6.66 million** figure represents station-hour records: the same clock timestamp recorded at different monitoring stations is counted once for each station because each is an independently analysed observation. The **43,368** figure counts distinct clock timestamps only once across the complete project. Therefore, these two quantities describe different aspects of the dataset and should not be interchanged.
+
+The project contains more than 10,000 files when all generated research artifacts are included. That **12,936-file** inventory includes raw-data records and the resulting cleaned datasets, audit files, model outputs, metrics, figures and reports; it should not be described as 12,936 downloaded raw files. The validated manifests currently document **784 raw annual source files**, all marked as found.
+
+### Standardized hourly records by city
+
+| City | Stations | Station-hour records |
+|---|---:|---:|
+| Ahmedabad | 9 | 390,312 |
+| Bengaluru | 13 | 537,432 |
+| Bhopal | 3 | 112,584 |
+| Bhubaneswar | 2 | 51,696 |
+| Chandigarh | 3 | 130,104 |
+| Chennai | 9 | 390,288 |
+| Delhi | 38 | 1,647,984 |
+| Guwahati | 4 | 164,712 |
+| Hyderabad | 14 | 607,152 |
+| Jaipur | 6 | 207,648 |
+| Kanpur | 4 | 155,904 |
+| Kochi | 1 | 43,368 |
+| Kolkata | 7 | 303,576 |
+| Lucknow | 6 | 251,448 |
+| Mumbai | 19 | 823,992 |
+| Nagpur | 4 | 120,912 |
+| Patna | 6 | 260,208 |
+| Pune | 7 | 259,488 |
+| Raipur | 4 | 173,472 |
+| Surat | 1 | 25,848 |
+| **Total** | **160** | **6,658,128** |
 
 ## Application pages
 
@@ -43,23 +109,23 @@ The city selector is deliberately ordered as Delhi, Mumbai, Kolkata, Chennai, Hy
 - **References:** searchable author–year bibliography with direct article/PDF links.
 - **About & acknowledgement:** formal MCA project-submission details and acknowledgement.
 
-The City Dashboard begins with the publication-quality national study-area figure and a separate interactive seven-city map. Hovering over a processed city displays its station count, latest historical median AQI, AQI category, station range, and most recent available record. The 250 km circles indicate nominal study domains rather than pollutant dispersion or administrative boundaries.
+The City Dashboard begins with the publication-quality national study-area figure and an interactive major-city study map. Hovering over a mapped city displays its station count, latest historical median AQI, AQI category, station range, and most recent available record. The complete 20-city dataset remains accessible through the dynamic city selector. The 250 km circles indicate nominal study domains rather than pollutant dispersion or administrative boundaries.
 
 ## Methodological framework diagrams
 
-The following diagrams summarize the dashboard workflow from processed hourly data and the multi-city registry through user selection, city/station analysis, model evidence, interpretation, quality safeguards, and downloadable outputs.
+The diagrams below summarize the dashboard workflow and the PIIANN modelling methodology. Select either image to open its full-resolution GitHub version.
 
-> **Version note:** These diagrams were prepared for an earlier dashboard version and therefore retain the former “AirScope” heading and the earlier three-city/33-station registry. The current application is named **PIIANN AQI Dashboard** and contains **seven cities and 106 monitoring stations**. The overall methodological flow remains applicable.
+### PIIANN AQI Dashboard methodological framework
 
-### Colour version
+[![PIIANN AQI Dashboard methodological framework](https://raw.githubusercontent.com/rrskiran-msrit/aqi-dashboard/main/PIIANN_AQI_Methodology_Flow_Diagram.png)](https://github.com/rrskiran-msrit/aqi-dashboard/blob/main/PIIANN_AQI_Methodology_Flow_Diagram.png)
 
-![Methodological framework of the PIIANN AQI Dashboard — colour version](AirScope_Methodology_Flow_Diagram.png)
+This framework describes the progression from processed hourly observations and the multi-city station registry through user selection, city/station analysis, model evidence, interpretation, data-quality safeguards, and downloadable research outputs.
 
-### Black-and-white version
+### PIIANN model methodological framework
 
-The black-and-white version is provided for thesis printing, monochrome reports, and manuscript submission requirements.
+[![PIIANN model methodological framework](https://raw.githubusercontent.com/rrskiran-msrit/aqi-dashboard/main/PIIANN_Methodology_Flow_Diagram.png)](https://github.com/rrskiran-msrit/aqi-dashboard/blob/main/PIIANN_Methodology_Flow_Diagram.png)
 
-![Methodological framework of the PIIANN AQI Dashboard — black-and-white version](AirScope_Methodology_Flow_Diagram_BW.png)
+This framework documents the physics-guided artificial-intelligence workflow used to construct, validate, compare, and interpret AQI prediction models.
 
 ## Dashboard capabilities
 
@@ -198,6 +264,8 @@ The dashboard therefore labels saved prediction results as **model validation**,
 air-quality-piiml-dashboard/
 ├── streamlit_app.py             # Main Streamlit application
 ├── add_city.py                  # Compact city-bundle importer
+├── PIIANN_AQI_Methodology_Flow_Diagram.png
+├── PIIANN_Methodology_Flow_Diagram.png
 ├── assets/
 │   └── Study-area.png           # Publication-quality India study-area figure
 ├── requirements.txt             # Python dependencies
@@ -206,17 +274,38 @@ air-quality-piiml-dashboard/
 │   └── config.toml              # Streamlit theme and server configuration
 └── data/
     ├── station_index.csv        # City and station registry
-    ├── hyderabad/
-    │   └── <station>/
+    ├── ahmedabad/
     ├── bengaluru/
-    │   └── <station>/
-    ├── jaipur/
-    ├── delhi/
-    ├── mumbai/
+    ├── bhopal/
+    ├── bhubaneswar/
+    ├── chandigarh/
     ├── chennai/
+    ├── delhi/
+    ├── guwahati/
+    ├── hyderabad/
+    ├── jaipur/
+    ├── kanpur/
+    ├── kochi/
     ├── kolkata/
-    │   └── <station>/
+    ├── lucknow/
+    ├── mumbai/
+    ├── nagpur/
+    ├── patna/
+    ├── pune/
+    ├── raipur/
+    ├── surat/
     └── city_summary/
+```
+
+Each city directory contains one subdirectory per monitoring station:
+
+```text
+data/<city>/<station>/
+├── station_hourly.parquet       # Standardized hourly observations
+├── station_config.json          # Station, feature, and model configuration
+├── model_metrics.csv            # Validation metrics for available models
+├── aqi_predictions.csv          # Saved AQI prediction rows
+└── pollutant_predictions.csv    # Saved pollutant prediction rows, where available
 ```
 
 Each compact station directory normally contains:
@@ -307,23 +396,28 @@ For manuscript publication, consider archiving a release through Zenodo and citi
 
 ## Suggested citation
 
-Replace the placeholders below after the manuscript, repository, and archival release are finalized:
-
 ```text
-[Author(s)]. (Year). PIIANN AQI Dashboard
-[Software]. Version X.Y.Z. GitHub: [repository URL].
+Reddy, R. S. K. (2026). PIIANN AQI Dashboard [Software].
+GitHub: https://github.com/rrskiran-msrit/aqi-dashboard
 Live application: [Streamlit application URL].
 Archived version: [Zenodo DOI].
 ```
 
 ## Research acknowledgement
 
-This dashboard is the presentation layer for a broader air-quality processing and physics-informed machine-learning workflow. The scientific manuscript should be consulted for complete information about data provenance, preprocessing, feature construction, model architecture, training, validation, uncertainty, and interpretation.
+This dashboard is the presentation layer for a broader air-quality processing and physics-informed machine-learning workflow. It was prepared as part of the MCA thesis submission of **Rama Siva Kiran Reddy** under the guidance of **Dr. Manish Kumar**. The author acknowledges the Centre for Distance and Online Education, Andhra University; the laboratory support provided through the Department of Chemical Engineering, M S Ramaiah Institute of Technology, Bengaluru; and the Central Pollution Control Board, New Delhi, for the air-quality data used in the research.
+
+The thesis and associated scientific report should be consulted for complete information about data provenance, preprocessing, feature construction, model architecture, training, validation, uncertainty, and interpretation.
 
 ## Licence
 
-MIT License
+This project is released under the **MIT License**. See the repository's [`LICENSE`](https://github.com/rrskiran-msrit/aqi-dashboard/blob/main/LICENSE) file for the complete licence text.
+
+The MIT License applies to the project software. Air-quality datasets and other third-party materials remain subject to the terms and attribution requirements of their respective providers.
 
 ## Contact
 
-For research questions, collaboration, or reproducibility requests, add the corresponding author's name, institutional affiliation, and contact email (rrskiran@msrit.edu)
+**Rama Siva Kiran Reddy**  
+Email: [rrskiran@msrit.edu](mailto:rrskiran@msrit.edu)
+
+For questions about the research, dashboard, reproducibility, or academic collaboration, please use the email address above.
